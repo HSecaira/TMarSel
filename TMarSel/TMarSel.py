@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Select gene families as markers for microbial phylogenomics
-Version: 0.0
+Version: 0.1.0
 Authors: Henry Secaira and Qiyun Zhu
 February 2025
 '''

@@ -137,4 +137,4 @@ python TMarSel/TMarSel.py \
 
 The current version of **TMarSel** is described in 
 
-    * x.x
+* x.x
