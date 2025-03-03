@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "TMarSel"
+dynamic = ["version"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "pyfiglet",
+    "tqdm",
+    "argparse",
+]
+requires-python = ">=3.6"
+authors = [
+    {name = "Henry Secaira Morocho", email = "henrry.secairamorocho@gmail.com"},
+    {name = "Qiyun Zhu", email = "qiyunzhu@gmail.com"}
+]
+maintainers = [
+    {name = "Henry Secaira Morocho", email = "henrry.secairamorocho@gmail.com"}
+]
+description = "select gene families as markers for microbial phylogenomics"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["bioinformatics", "metagenomics", "microbiome", "phylogenomics"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/HSecaira/TMarSel"
+Documentation = "https://github.com/HSecaira/TMarSel/blob/main/README.md"
+Repository = "https://github.com/HSecaira/TMarSel.git"
+Issues = "https://github.com/HSecaira/TMarSel/issues"
+
+[tool.hatch.version]
+path = 'TMarSel/__init__.py'
