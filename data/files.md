@@ -1,8 +1,3 @@
-# Web of Life 2 (WoL2)
+# Web of Life 2 (WoL2) and Earth Microbiome Project (EMP)
 
-The 1,510 genomes from the WoL2 project are in [x](x)
-
-# Earth Microbiome Project (EMP)
-
-The 793 metagenome-assembled genomes from EMP are in [y](y)
- 
+The KEGG and EggNog gene families from the 1,510 genomes from the WoL2 and 793 metagenome-assembled genomes are available in [Zenodo](https://doi.org/10.5281/zenodo.14968550).

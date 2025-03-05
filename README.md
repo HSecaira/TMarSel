@@ -22,7 +22,7 @@
 * `-k` Number of markers to select (default is 50).
 * `-min_markers` Minimum number of markers per genome. Can be a percentage or a number (default is 1). Genomes with fewer markers than the indicated value are discarded.
 * `-th` Threshold for filtering copies of each gene family per genome (default is 1.0) Retain the ORFs within `-th` of the maximum bit score for each gene family and genome. Lower values (e.g. 0.0) retains all ORFs, whereas higher values (e.g. 1.0) retains only the ORF with the highest bit score.
-* `-p` Exponent of the power mean (cost function) used to select markers (default is 0.0). We recommend not changing this value unless you are familiar with the method\nDefault value yields the optimal combination of markers..
+* `-p` Exponent of the power mean (cost function) used to select markers (default is 0.0). We recommend not changing this value unless you are familiar with the method. Default value yields the optimal combination of markers..
 * `-c` Indicate whether the input file(s) is (.xz) compressed.
 
 ## Outputs
@@ -64,20 +64,20 @@
  python TMarSel.py -i input_file -o output_dir
 ```
 
-After installation, type `python TMarSel.py -h` to see all the options.
+After installation, type `python TMarSel.py -h` to learn all the options.
 
 ## Examples
 
-We provide multiple examples to showcase the usage of **TMarSel**.
+We provide multiple examples to showcase the usage of **TMarSel**. Data can be downloaded as explained in [files](data/files.md).
 
-1. **Annotations of 1,510 genomes from the Web of Life 2 database**
+### 1\. Annotations of 1,510 genomes from the Web of Life 2 database
 
 * EggNog annotations contained in a single file with three columns `orf|bit_score|gene_family`.
 
 ```bash
 python TMarSel/TMarSel.py \
 --input_file    data/wol2/emapper_wol2_example.tsv \
---output_dir out/wol2 
+--output_dir    out/wol2 
 ```
 
 * EggNog annotations contained in a single (xz compressed) file with raw annotations.
@@ -86,16 +86,16 @@ python TMarSel/TMarSel.py \
 python TMarSel/TMarSel.py \
 --input_file    data/wol2/emapper_wol2.annotations.xz \
 --output_dir    out/wol2 \
+--database      eggnog
 --compressed \
 --raw_annotations \
---database  eggnog
 ```
 * KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`.
 
 ```bash
 python TMarSel/TMarSel.py \
 --input_file    data/wol2/kofamscan_wol2_example.tsv \
---output_dir out/wol2 
+--output_dir    out/wol2 
 ```
 * KEGG annotations contained in a single (xz compressed) file with raw annotations.
 
@@ -103,35 +103,34 @@ python TMarSel/TMarSel.py \
 python TMarSel/TMarSel.py \
 --input_file    data/wol2/kofamscan_wol2.tsv.xz \
 --output_dir    out/wol2 \
+--database      kegg
 --compressed \
 --raw_annotations \
---database  kegg
 ```
 
-2. **Annotations of 793 metagenome-assembled genomes (MAGs) from the Earth Microbiome Project**
+### 2\. Annotations of 793 metagenome-assembled genomes (MAGs) from the Earth Microbiome Project
 
 * EggNog annotations contained in multiple files with raw annotations.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file    data/emp/mags.txt \
---input_dir_files data/emp/eggnog \
---output_dir    out/emp \
+--input_file        data/emp/mags.txt \
+--input_dir_files   data/emp/eggnog \
+--output_dir        out/emp \
+--database          eggnog
 --raw_annotations \
---database  eggnog
 ```
 
 * KEGG annotations contained in multiple (not compressed) files.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file    data/emp/mags.txt \
---input_dir_files data/emp/kegg \
---output_dir    out/emp \
+--input_file        data/emp/mags.txt \
+--input_dir_files   data/emp/kegg \
+--output_dir        out/emp \
+--database          kegg
 --raw_annotations \
---database  kegg
 ```
-
 
 ## Citation
 
