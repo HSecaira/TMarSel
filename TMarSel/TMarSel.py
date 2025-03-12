@@ -3,7 +3,7 @@
 Select gene families as markers for microbial phylogenomics
 Version: 0.1.0
 Authors: Henry Secaira and Qiyun Zhu
-February 2025
+March 2025
 '''
 
 # Import the necessary libraries
@@ -20,14 +20,22 @@ from tqdm import tqdm
 def load_genome_annotations_single_file(fIn, database, compressed, raw_annotations):
     """
     Load genome annotation data from EggNOG or KEGG format.
+
+    Parameters
+    ----------
+        fIn : str
+            Input file
+        database : str (optional)
+            Either 'eggnog' or 'kegg' to specify the format
+        compressed : bool (optional)
+            Whether the file is compressed (default is True)
+        raw_annotations : bool (optional)
+            Whether the file contains raw annotations (default is False)
     
-    Parameters:
-        fIn (str): Input file path.
-        database (str): Either 'eggnog' or 'kegg' to specify the format.
-        compressed (bool, optional): Whether the file is compressed (default is True).
-    
-    Returns:
-        pd.DataFrame: A dataframe with columns ['orf', 'bit_score', 'gene_family', 'genome'], indexed by 'orf'.
+    Returns
+    -------
+        df : pandas.DataFrame
+            Dataframe with columns ['orf', 'bit_score', 'gene_family', 'genome'], indexed by 'orf'.
     """
 
     # Check if file exists
@@ -40,19 +48,13 @@ def load_genome_annotations_single_file(fIn, database, compressed, raw_annotatio
             f.read(1)  # Try reading a character to check compression
         if not compressed:
             raise ValueError(
-                f'File "{fIn}" appears to be compressed.\nTry running the command with "-c" to parse compressed files.'
+                f'File "{fIn}" appears to be XZ compressed.\nTry running the command with "-c" to parse compressed files.'
             )
         open_func = lzma.open
     except lzma.LZMAError:
         if compressed:
             raise ValueError(f'File "{fIn}" is not a valid LZMA-compressed file.')
         open_func = open
-
-    # # Check if file is a single annotation file or a list of annotation files
-    # with open_func(fIn, mode = 'rt') as f:
-    #     line = f.readline()
-    #     if len(line.split('\t')) == 1:
-    #         raise ValueError('Please provide a single annotation file, not a list of files.')
 
     # Load data
     tmp = []
@@ -93,13 +95,21 @@ def load_genome_annotations_multiple_files(file_names, database, compressed, raw
     """
     Load genome annotation data from multiple EggNOG or KEGG files.
     
-    Parameters:
-        file_names (list of str): List of input file paths.
-        database (str): Either 'eggnog' or 'kegg' to specify the format.
-        compressed (bool): Whether the files are compressed.
+    Parameters
+    ----------
+        file_names : list of str
+            List of input file paths.
+        database : str (optional)
+            Either 'eggnog' or 'kegg' to specify the format.
+        compressed : bool (optional)
+            Whether the file is compressed (default is True)
+        raw_annotations : bool (optional)
+            Whether the file contains raw annotations (default is False)
     
-    Returns:
-        pd.DataFrame: A dataframe with columns ['orf', 'bit_score', 'gene_family', 'genome'], indexed by 'orf'.
+    Returns
+    -------
+        df : pandas.DataFrame
+            Dataframe with columns ['orf', 'bit_score', 'gene_family', 'genome'], indexed by 'orf'.
     """
 
     tmp = []
@@ -120,7 +130,7 @@ def load_genome_annotations_multiple_files(file_names, database, compressed, raw
                 f.read(1)  # Try reading a character to check compression
             if not compressed:
                 raise ValueError(
-                    f'File "{fIn}" appears to be compressed.\nTry running the command with "-c" to parse compressed files.'
+                    f'File "{fIn}" appears to be XZ compressed.\nTry running the command with "-c" to parse compressed files.'
                 )
             open_func = lzma.open
         except lzma.LZMAError:
@@ -160,6 +170,21 @@ def load_genome_annotations_multiple_files(file_names, database, compressed, raw
     return df
 
 def filter_copies(df, threshold):
+    '''
+    Filter out copies of gene families per genome based on a threshold.
+
+    Parameters
+    -----------
+        df : pandas.DataFrame
+            DataFrame with columns 'bit_score', 'gene_family', and 'genome', indexed by 'orf'.
+        threshold : float
+            Float value between 0 and 1 indicating the closeness to the maximum bit score for each gene family and genome.
+            Lower values (e.g. 0.0) retains all ORFs, whereas higher values (e.g. 1.0) retains only the ORFs with the highest bit score.
+    Returns
+    --------
+        filtered_df : pandas.DataFrame
+            DataFrame with columns 'bit_score', 'gene_family', and 'genome', indexed by 'orf'.
+    '''
     # Check if threshold is a valid value
     if not 0 <= threshold <= 1:
         raise ValueError('Threshold should be a value between 0 and 1.')
@@ -171,12 +196,45 @@ def filter_copies(df, threshold):
     return filtered_df
 
 def get_edges(filtered_df):
+    '''
+    Get the mapping between genome and gene families.
+
+    Parameters
+    -----------
+        filtered_df : pandas.DataFrame
+            DataFrame with columns 'bit_score', 'gene_family', and 'genome', indexed by 'orf'.
+    Returns
+    --------
+        edges_genes : numpy.ndarray
+            Array of gene families.
+        edges_genomes : numpy.ndarray
+            Array of genomes.
+    '''
     edges_genomes = filtered_df['genome'].values
     edges_genes = filtered_df['gene_family'].values
 
     return edges_genes, edges_genomes
 
 def build_copy_number_matrix(edges_genes, edges_genomes):
+    '''
+    Build a copy number matrix from the arrays of gene families and genomes.
+
+    Parameters
+    -----------
+        edges_genes : numpy.ndarray
+            Array of gene families.
+        edges_genomes : numpy.ndarray
+            Array of genomes.
+    Returns
+    --------
+        adj : numpy.ndarray
+            A matrix where rows represent genes and columns represent genomes. 
+            Each entry represents the number of copies of a gene family in a genome.
+        genomes : numpy.ndarray
+            Array of unique genomes.
+        genes : numpy.ndarray
+            Array of unique gene families.
+    '''
     # Get unique elements
     genes, genes_indices = np.unique(edges_genes, return_inverse = True)
     genomes, genomes_indices = np.unique(edges_genomes, return_inverse = True)
@@ -191,11 +249,14 @@ def remove_genes(adj):
     """
     Remove genes that are present in less than 4 genomes.
     
-    Parameters:
-        adj (numpy.ndarray): A matrix where rows represent genes and columns represent genomes.
-    
-    Returns:
-        numpy.ndarray: Indices of rows (genes) to be removed.
+    Parameters
+    -----------
+        adj : numpy.ndarray
+            A matrix where rows represent genes and columns represent genomes.    
+    Returns
+    --------
+        remove : numpy.ndarray
+            Indices of rows (genes) to be removed.
     """
     # remove = np.array([i for i in range(len(adj)) if np.count_nonzero(adj[i]) < 4])
     remove = np.where(np.count_nonzero(adj, axis = 1) < 4)[0]
@@ -203,37 +264,44 @@ def remove_genes(adj):
 
 def get_genomes_to_keep(adj, k, markers_index, min_markers, genomes):
     """
-    Filter genomes based on the number of markers.
+    Filter genomes based on a minimum number of markers.
 
-    Parameters:
-        adj (numpy.ndarray): A 2D matrix where rows represent genes and columns represent genomes.
-        k (int): The total number of markers.
-        markers_index (array-like): Indices of rows corresponding to marker genes.
-        min_markers (float or int): Threshold for filtering genomes. 
-                                             If a float (0-1), it is treated as a percentage of k.
-                                             If an int, it is used as an absolute threshold.
-    Returns:
-        numpy.ndarray: Array of genomes that meet the threshold.
+    Parameters
+    -----------
+        adj : numpy.ndarray 
+            A matrix where rows represent genes and columns represent genomes.
+        k : int
+            The total number of markers selected.
+        markers_index : numpy.ndarray
+            Indices of rows corresponding to selected markers
+        min_markers : float or int
+            Threshold for filtering genomes. 
+            If a float (0-1), it is treated as a percentage of k.
+            If an int, it is used as an absolute threshold.
+    Returns
+    --------
+        numpy.ndarray
+            Array of genomes that meet the threshold of minimum number of markers per genome
     """
     threshold = min_markers * k if isinstance(min_markers, float) and 0 <= min_markers <= 1 else min_markers
     return genomes[adj[markers_index].sum(axis = 0) >= threshold]
 
 def greedy_power_mean_sample_final(data, k, p, pseudocount):
-    """Select k rows from a matrix such that the selection criterion by column is maximized.
+    """
+    Select k rows from a matrix such that the selection criterion by column is maximized.
 
     Parameters
     ----------
-    data : ndarray (2D)
-        Input data matrix.
+    data : numpy.ndarray
+        A matrix where rows represent genes and columns represent genomes.
     k : int
-        Number of rows to select.
+        Number of rows (markers) to select.
     p : int
-        Exponent.
-
+        Exponent of generalized power mean
     Returns
     -------
-    ndarray (1D)
-        Row indices selected in order.
+    numpy.ndarray
+        Indices of rows corresponding to selected markers
     """
 
     n, m = data.shape
@@ -303,12 +371,18 @@ def save_marker_orfs(markers_index, genes_mod, filtered_df, genomes_to_keep, out
     """
     Save statistics ORFs for each marker gene to individual text files.
 
-    Parameters:
-        markers_index (array-like): Indices of marker genes.
-        genes_mod (array-like): List of gene names corresponding to indices.
-        filtered_df (pd.DataFrame): DataFrame containing gene_family and genome information.
-        genomes_to_keep (array-like): List of genomes to keep.
-        output_dir (str, optional): Directory to save the ORF files. Default is './orfs'.
+    Parameters
+    ----------
+        markers_index : numpy.ndarray
+            Indices of marker genes.
+        genes_mod : numpy.ndarray
+            Gene family names
+        filtered_df : pandas.DataFrame)
+            DataFrame with columns 'bit_score', 'gene_family', and 'genome', indexed by 'orf'.
+        genomes_to_keep : numpy.ndarray
+            Genomes to keep based on the minimum number of markers per genome.
+        output_dir : str
+            Directory to save the ORF files.
     
     Returns:
         None
@@ -352,16 +426,6 @@ def save_marker_orfs(markers_index, genes_mod, filtered_df, genomes_to_keep, out
             pbar.update(1)
 
 
-def save_statistics(data, genomes, genes_mod, markers_index, filtered_df, output_dir):
-    '''
-    '''
-
-    # Ensure the output directory exists
-    os.makedirs(f'{output_dir}/statistics', exist_ok = True)
-
-    # Save number of markers per genome
-
-
 def main(argv = None):
 
     # Print welcome message
@@ -369,7 +433,7 @@ def main(argv = None):
     print(ascii_banner)
 
     args_parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
-    description = f'TMarSel: Tailored Selection gene families as Markers for microbial phylogenomics\nVersion: 0.1.0\nAuthors: Henry Secaira and Qiyun Zhu\nFebruary 2025\nBasic usage: python TMarSel.py -i input_file -k markers -o output_dir\nType python TMarSel.py -h for help')
+    description = f'TMarSel: Tailored Marker Selection of gene families for microbial phylogenomics\nVersion: 0.1.0\nBasic usage: python TMarSel.py -i input_file -k markers -o output_dir\nType python TMarSel.py -h for help')
     args_parser.add_argument('-i', '--input_file', type = str, required = True,
      help = '[required] File containing the genome annotations of ORFs into gene families.\nEither a single annotation file OR a file containing a list of annotation file names (one per line)')
     args_parser.add_argument('-o', '--output_dir', type = str, required = True, 

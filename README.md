@@ -11,7 +11,7 @@
 - [Examples](#examples)
 - [Citation](#citation)
 
-## Inputs
+## Flags
 
 * `-h` Display help message.
 * `-i` [**required**] Either a single annotation of ORFs into gene families file OR a file containing a list of annotation file names (one per line). File(s) contains three columns: `orf|bit_score|gene_family`
