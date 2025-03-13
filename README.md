@@ -14,16 +14,14 @@
 ## Flags
 
 * `-h` Display help message.
-* `-i` [**required**] Either a single annotation of ORFs into gene families file OR a file containing a list of annotation file names (one per line). File(s) contains three columns: `orf|bit_score|gene_family`
+* `-i` [**required**] Either a single annotation of ORFs into gene families file OR a direcotry containing multiple annotation files. File(s) contains three columns: `orf|bit_score|gene_family`
 * `-o` [**required**] Output directory to save the ORFs and statistics of each marker.
-* `-input_dir` [**required**] IF providing a list of files in `-i`. Directory containing the input files.
 * `-raw` [**required**] IF input file(s) contain raw annotations from functional databases, which contains multiple columns depending on the database.
 * `-db` [**required**] IF input contains the raw annotations set in `-raw`. Name of the database used for genome annotation (`eggnog` or `kegg`).
 * `-k` Number of markers to select (default is 50).
 * `-min_markers` Minimum number of markers per genome. Can be a percentage or a number (default is 1). Genomes with fewer markers than the indicated value are discarded.
 * `-th` Threshold for filtering copies of each gene family per genome (default is 1.0) Retain the ORFs within `-th` of the maximum bit score for each gene family and genome. Lower values (e.g. 0.0) retains all ORFs, whereas higher values (e.g. 1.0) retains only the ORF with the highest bit score.
-* `-p` Exponent of the power mean (cost function) used to select markers (default is 0.0). We recommend not changing this value unless you are familiar with the method. Default value yields the optimal combination of markers..
-* `-c` Indicate whether the input file(s) is (.xz) compressed.
+* `-p` Exponent of the power mean (cost function) used to select markers (default is 0.0). We recommend not changing this value unless you are familiar with the method. Default value yields the optimal combination of markers.
 
 ## Outputs
 
@@ -72,64 +70,58 @@ We provide multiple examples to showcase the usage of **TMarSel**. Data can be d
 
 ### 1\. Annotations of 1,510 genomes from the Web of Life 2 database
 
-* EggNog annotations contained in a single file with three columns `orf|bit_score|gene_family`.
+* EggNOG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file    data/wol2/emapper_wol2_example.tsv \
---output_dir    out/wol2 
+    --input_file    data/wol2/emapper_wol2_example.tsv \
+    --output_dir    out/wol2 
 ```
 
-* EggNog annotations contained in a single (xz compressed) file with raw annotations.
-
-```bash
-python TMarSel/TMarSel.py \
---input_file    data/wol2/emapper_wol2.annotations.xz \
---output_dir    out/wol2 \
---database      eggnog
---compressed \
---raw_annotations \
-```
 * KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file    data/wol2/kofamscan_wol2_example.tsv \
---output_dir    out/wol2 
-```
-* KEGG annotations contained in a single (xz compressed) file with raw annotations.
-
-```bash
-python TMarSel/TMarSel.py \
---input_file    data/wol2/kofamscan_wol2.tsv.xz \
---output_dir    out/wol2 \
---database      kegg
---compressed \
---raw_annotations \
+    --input_file    data/wol2/kofamscan_wol2_example.tsv \
+    --output_dir    out/wol2 
 ```
 
 ### 2\. Annotations of 793 metagenome-assembled genomes (MAGs) from the Earth Microbiome Project
 
-* EggNog annotations contained in multiple files with raw annotations.
+* EggNOG annotations contained multiple (not compressed) files with three columns `orf|bit_score|gene_family`.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file        data/emp/mags.txt \
---input_dir_files   data/emp/eggnog \
---output_dir        out/emp \
---database          eggnog
---raw_annotations \
+    --input_file_or_dir data/emp/eggnog_format \
+    --output_dir        out/emp
 ```
 
-* KEGG annotations contained in multiple (not compressed) files.
+* EggNOG annotations contained in multiple (not compressed) files with raw annotations.
 
 ```bash
 python TMarSel/TMarSel.py \
---input_file        data/emp/mags.txt \
---input_dir_files   data/emp/kegg \
---output_dir        out/emp \
---database          kegg
---raw_annotations \
+    --input_file_or_dir data/emp/eggnog \
+    --output_dir        out/emp \
+    --database          eggnog \
+    --raw_annotations
+```
+
+* KEGG annotations contained in multiple (not compressed) files with three columns `orf|bit_score|gene_family`.
+
+```bash
+python TMarSel/TMarSel.py \
+    --input_file_or_dir data/emp/kegg_format \
+    --output_dir        out/emp
+```
+
+* KEGG annotations contained in multiple (not compressed) files with raw annotations.
+
+```bash
+python TMarSel/TMarSel.py \
+    --input_file_or_dir data/emp/kegg \
+    --output_dir        out/emp \
+    --database          kegg \
+    --raw_annotations
 ```
 
 ## Citation

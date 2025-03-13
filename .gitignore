@@ -50,7 +50,9 @@ pip-delete-this-directory.txt
 # Optional: Ignore data files due to size. Available in Zenodo.
 *.csv
 *.tsv
-*.xz 
+*.xz
+*.gz
+*.bz2
 *.annotations
 *.txt
 out/

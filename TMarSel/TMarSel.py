@@ -9,7 +9,8 @@ March 2025
 # Import the necessary libraries
 import numpy as np
 import pandas as pd
-import lzma, argparse, os, sys, pyfiglet
+import os, sys, argparse
+import gzip, bz2, lzma
 from scipy.stats import pmean
 from tqdm import tqdm
 
@@ -17,13 +18,13 @@ from tqdm import tqdm
 ##################################################
 # Functions
 
-def load_genome_annotations_single_file(fIn, database, compressed, raw_annotations):
+def load_genome_annotations_single_file(input_data, database, raw_annotations):
     """
     Load genome annotation data from EggNOG or KEGG format.
 
     Parameters
     ----------
-        fIn : str
+        input_data : str
             Input file
         database : str (optional)
             Either 'eggnog' or 'kegg' to specify the format
@@ -39,66 +40,58 @@ def load_genome_annotations_single_file(fIn, database, compressed, raw_annotatio
     """
 
     # Check if file exists
-    if not os.path.exists(fIn):
-        raise FileNotFoundError(f"File '{fIn}' does not exist. Please check the filename and path.")
+    if not os.path.exists(input_data):
+        raise FileNotFoundError(f"File '{input_data}' does not exist. Please check the filename and path.")
 
     # Determine the correct open function
-    try:
-        with lzma.open(fIn, mode = 'rt') as f:
-            f.read(1)  # Try reading a character to check compression
-        if not compressed:
-            raise ValueError(
-                f'File "{fIn}" appears to be XZ compressed.\nTry running the command with "-c" to parse compressed files.'
-            )
-        open_func = lzma.open
-    except lzma.LZMAError:
-        if compressed:
-            raise ValueError(f'File "{fIn}" is not a valid LZMA-compressed file.')
+    if input_data.endswith('.xz'):
+            open_func = lzma.open
+    elif input_data.endswith('.gz'):
+        open_func = gzip.open
+    elif input_data.endswith('.bz2'):
+        open_func = bz2.open
+    else:
         open_func = open
 
+    # Get file name
+    file_name = os.path.basename(input_data)
     # Load data
     tmp = []
-    with open_func(fIn, mode='rt') as f:
-        # Get file name
-        file_name = os.path.basename(fIn)
-        # Iterate over lines in the file
+    with open_func(input_data, mode = 'rt') as f:
         for line in f:
-            if not line.startswith('#'):
-                row = line.strip().split('\t')
-
-                # If raw annotations, read the raw dara
-                if raw_annotations:
-                    orf, score = row[0], row[3]
-                    genome = orf.split('_')[0]
-
-                    if database == 'eggnog':
-                        # Extract most basal OG
-                        gene = row[4].split('|')[0].split('@')[0]
-                    elif database == 'kegg':
-                        # Extract KO identifier
-                        gene = row[1]
-                    else:
-                        raise ValueError("Invalid database type. Choose 'eggnog' or 'kegg'.")
+            if line.startswith('#'):
+                continue
+            row = line.strip().split('\t')
+            # If raw annotations, read the raw data
+            if raw_annotations:
+                if database == 'eggnog':
+                    orf, score, gene = row[0], row[3], row[4].split('|')[0].split('@')[0]
+                elif database == 'kegg':
+                    if not line.startswith('*'):
+                        continue
+                    orf, score, gene = row[1], row[4], row[2]
                 else:
-                    orf, score, gene = row[0], row[1], row[2]
-                    genome = orf.split('_')[0]
+                    raise ValueError("Invalid database type. Choose 'eggnog' or 'kegg'.")
+            else:
+                orf, score, gene = row[0], row[1], row[2]
 
-                # Add data to tmp list
-                tmp.append([orf, float(score), gene, genome, file_name])
+            genome = orf.split('_')[0]
+            # Add data to tmp list
+            tmp.append([orf, float(score), gene, genome, file_name])
 
     df = pd.DataFrame(tmp, columns=['orf', 'bit_score', 'gene_family', 'genome', 'file_name'])
     df.set_index('orf', inplace=True)
 
     return df
 
-def load_genome_annotations_multiple_files(file_names, database, compressed, raw_annotations):
+def load_genome_annotations_multiple_files(input_data, database, raw_annotations):
     """
     Load genome annotation data from multiple EggNOG or KEGG files.
     
     Parameters
     ----------
-        file_names : list of str
-            List of input file paths.
+        input_data : str
+            Directory containing the input files.
         database : str (optional)
             Either 'eggnog' or 'kegg' to specify the format.
         compressed : bool (optional)
@@ -112,56 +105,47 @@ def load_genome_annotations_multiple_files(file_names, database, compressed, raw
             Dataframe with columns ['orf', 'bit_score', 'gene_family', 'genome'], indexed by 'orf'.
     """
 
+    # List to store data
     tmp = []
-    for fIn in file_names:
-        if database == 'eggnog':
-            fIn = fIn + '.emapper.annotations'
-        elif database == 'kegg':
-            fIn = fIn + '.tsv'
-        else:
-            raise ValueError("Invalid database type. Choose 'eggnog' or 'kegg'.")
-        # Check if file exists
-        if not os.path.exists(fIn):
-            raise FileNotFoundError(f"File '{fIn}' does not exist. Please check the filename and path.")
-
+    # Check input directory is not empty
+    if not os.path.exists(input_data):
+        raise FileNotFoundError(f"Directory '{input_data}' does not exist. Please check the directory name and path.")
+    # Iterate over input files
+    files = os.listdir(input_data)
+    for file_name in files:
+        fIn = os.path.join(input_data, file_name)
         # Determine the correct open function
-        try:
-            with lzma.open(fIn, mode = 'rt') as f:
-                f.read(1)  # Try reading a character to check compression
-            if not compressed:
-                raise ValueError(
-                    f'File "{fIn}" appears to be XZ compressed.\nTry running the command with "-c" to parse compressed files.'
-                )
+        if file_name.endswith('.xz'):
             open_func = lzma.open
-        except lzma.LZMAError:
-            if compressed:
-                raise ValueError(f'File "{fIn}" is not a valid LZMA-compressed file.')
+        elif file_name.endswith('.gz'):
+            open_func = gzip.open
+        elif file_name.endswith('.bz2'):
+            open_func = bz2.open
+        else:
             open_func = open
 
-        # Get file name
-        file_name = os.path.basename(fIn)
-
-        # Load data into tmp list
+        # Load data
         with open_func(fIn, mode = 'rt') as f:
             for line in f:
-                if not line.startswith('#'):
-                    row = line.strip().split('\t')
-                    # If raw annotations, read the raw dara
-                    if raw_annotations:
-                        orf, score = row[0], row[3]
-                        genome = orf.split('_')[0]
-
-                        if database == 'eggnog':
-                            gene = row[4].split('|')[0].split('@')[0]  # Extract most basal OG
-                        elif database == 'kegg':
-                            gene = row[1]  # Extract KO identifier
-                        else:
-                            raise ValueError("Invalid database type. Choose '-db eggnog' or '-db kegg'.")
+                if line.startswith('#'):
+                    continue
+                row = line.strip().split('\t')
+                # If raw annotations, read the raw data
+                if raw_annotations:
+                    if database == 'eggnog':
+                        orf, score, gene = row[0], row[3], row[4].split('|')[0].split('@')[0]
+                    elif database == 'kegg':
+                        if not line.startswith('*'):
+                            continue
+                        orf, score, gene = row[1], row[4], row[2]
                     else:
-                        orf, score, gene = row[0], row[1], row[2]
-                        genome = orf.split('_')[0]
+                        raise ValueError("Invalid database type. Choose 'eggnog' or 'kegg'.")
+                else:
+                    orf, score, gene = row[0], row[1], row[2]
 
-                    tmp.append([orf, float(score), gene, genome, file_name])
+                genome = orf.split('_')[0]
+                # Add data to tmp list
+                tmp.append([orf, float(score), gene, genome, file_name])
 
     # Create a single DataFrame after all files are processed
     df = pd.DataFrame(tmp, columns=['orf', 'bit_score', 'gene_family', 'genome', 'file_name'])
@@ -425,21 +409,30 @@ def save_marker_orfs(markers_index, genes_mod, filtered_df, genomes_to_keep, out
             # Update progress bar
             pbar.update(1)
 
+def print_tmarsel():
+    tmarsel = [
+        r" _____ __  __            ____       _ ",
+        r"|_   _|  \/  | __ _ _ __/ ___|  ___| |",
+        r"  | | | |\/| |/ _` | '__\___ \ / _ \ |",
+        r"  | | | |  | | (_| | |   ___) |  __/ |",
+        r"  |_| |_|  |_|\__,_|_|  |____/ \___|_|"
+    ]
+    
+    for line in tmarsel:
+        print(line)
+
 
 def main(argv = None):
 
-    # Print welcome message
-    ascii_banner = pyfiglet.figlet_format("TMarSel")
-    print(ascii_banner)
+    # Print banner
+    print_tmarsel()
 
     args_parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
     description = f'TMarSel: Tailored Marker Selection of gene families for microbial phylogenomics\nVersion: 0.1.0\nBasic usage: python TMarSel.py -i input_file -k markers -o output_dir\nType python TMarSel.py -h for help')
-    args_parser.add_argument('-i', '--input_file', type = str, required = True,
+    args_parser.add_argument('-i', '--input_file_or_dir', type = str, required = True,
      help = '[required] File containing the genome annotations of ORFs into gene families.\nEither a single annotation file OR a file containing a list of annotation file names (one per line)')
     args_parser.add_argument('-o', '--output_dir', type = str, required = True, 
      help = 'Output directory for the ORFs and statistics of each marker')
-    args_parser.add_argument('-input_dir', '--input_dir_files', type = str,
-     help = '[required] IF providing a list of file names in "-i".\nDirectory containing the input files')
     args_parser.add_argument('-raw', '--raw_annotations', action = 'store_true', 
     help = '[required] IF input file contains raw annotations')
     args_parser.add_argument('-db', '--database', type = str, 
@@ -452,40 +445,37 @@ def main(argv = None):
      help = 'Threshold for filtering copies of each gene family per genome (default is 1.0)\nRetain the ORFs within "threshold" of the maximum bit score for each gene family and genome.\nLower values (e.g. 0.0) retains all ORFs, whereas higher values (e.g. 1.0) retains only the ORF with the highest bit score')
     args_parser.add_argument('-p', '--exponent', type = int, default = 0, 
      help = 'Exponent of the power mean (cost function) used to select markers (default is 0).\nWe recommend not changing this value unless you are familiar with the method.')
-    args_parser.add_argument('-c', '--compressed', action = 'store_true', 
-     help = 'Input file(s) is (.xz) compressed')
     args = args_parser.parse_args(argv)
 
     # Get names
-    fIn = args.input_file
+    input_data = args.input_file_or_dir
     database = args.database
     threshold = args.threshold
     k = args.markers
     p = args.exponent
     output_dir = args.output_dir
-    compressed = args.compressed
     min_markers = args.min_number_markers_per_genome
-    input_dir = args.input_dir_files
     raw_annotations = args.raw_annotations
 
     # Run TMarSel
-    run_TMarSel(fIn, database, threshold, k, p, output_dir, compressed, min_markers, input_dir, raw_annotations)
+    run_TMarSel(input_data, database, threshold, k, p, output_dir, min_markers, raw_annotations)
     
     return 0
 
-def run_TMarSel(fIn, database, threshold, k, p, output_dir, compressed, min_markers, input_dir, raw_annotations):
-    # Load data
-    # In case of multiple annotation files
-    if input_dir:
-        with open(fIn, 'r') as f:
-            file_names = [f'{input_dir}/{line.strip()}' for line in f]
-        print(f'Loading genome annotation data from {len(file_names)} files with "-raw" (annotations) set to {raw_annotations}...')
-        df = load_genome_annotations_multiple_files(file_names, database, compressed, raw_annotations)
-    else:
-        print(f'Loading genome annotation data from a single file with "-raw" (annotations) set to {raw_annotations}...')
-        df = load_genome_annotations_single_file(fIn, database, compressed, raw_annotations)
+def run_TMarSel(input_data, database, threshold, k, p, output_dir, min_markers, raw_annotations):
 
-    # df = load_genome_annotations(fIn, database, compressed)    
+    # Load data
+    if not os.path.exists(input_data):
+        raise FileNotFoundError(f"'{input_data}' does not exist. Please check the filename and/or path of directory")
+    else:
+        if os.path.isfile(input_data):
+            print(f'Loading genome annotation data from a single file with "-raw" (annotations) set to {raw_annotations}...')
+            df = load_genome_annotations_single_file(input_data, database, raw_annotations)
+        elif os.path.isdir(input_data):
+            file_names = os.listdir(input_data)
+            print(f'Loading genome annotation data from {len(file_names)} files with "-raw" (annotations) set to {raw_annotations}...')
+            df = load_genome_annotations_multiple_files(input_data, database, raw_annotations)
+
     print(f'\tAnnotation file has : {df.shape[0]} ORFs assigned to a gene family\n')
     # Filter copies
     print(f'Filtering copies with threshold: {threshold}...')
