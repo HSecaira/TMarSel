@@ -106,7 +106,7 @@ python TMarSel/TMarSel.py \
     --raw_annotations
 ```
 
-* KEGG annotations contained in multiple (not compressed) files with three columns `orf|bit_score|gene_family`.
+* KEGG annotations contained in multiple files with three columns `orf|bit_score|gene_family`.
 
 ```bash
 python TMarSel/TMarSel.py \
@@ -114,7 +114,7 @@ python TMarSel/TMarSel.py \
     --output_dir        out/emp
 ```
 
-* KEGG annotations contained in multiple (not compressed) files with raw annotations.
+* KEGG annotations contained in multiple files with raw annotations.
 
 ```bash
 python TMarSel/TMarSel.py \
