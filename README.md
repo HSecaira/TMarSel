@@ -64,7 +64,7 @@ pip install TMarSel
  tmarsel -i input_file_or_dir -o output_dir
 ```
 
-After installation, type `python TMarSel.py -h` to learn all the options.
+After installation, type `tmarsel -h` to learn all the options.
 
 ## Examples
 
