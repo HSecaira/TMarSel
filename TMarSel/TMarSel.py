@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Select gene families as markers for microbial phylogenomics
-Version: 0.1.0
+Version: 0.1.1
 Authors: Henry Secaira and Qiyun Zhu
 March 2025
 '''
@@ -424,7 +424,7 @@ def main(argv = None):
     print_tmarsel()
 
     args_parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
-    description = f'TMarSel: Tailored Marker Selection of gene families for microbial phylogenomics\nVersion: 0.1.0\nBasic usage: python TMarSel.py -i input_file -k markers -o output_dir\nType python TMarSel.py -h for help')
+    description = f'TMarSel: Tailored Marker Selection of gene families for microbial phylogenomics\nBasic usage: tmarsel -i input_file -k markers -o output_dir\nType tmarsel -h for help')
     args_parser.add_argument('-i', '--input_file_or_dir', type = str, required = True,
      help = '[required] File containing the genome annotations of ORFs into gene families.\nEither a single annotation file OR a file containing a list of annotation file names (one per line)')
     args_parser.add_argument('-o', '--output_dir', type = str, required = True, 
