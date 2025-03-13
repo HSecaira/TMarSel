@@ -70,7 +70,7 @@ We provide multiple examples to showcase the usage of **TMarSel**. Data can be d
 
 ### 1\. Annotations of 1,510 genomes from the Web of Life 2 database
 
-* EggNOG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/annotation.md) for formating the raw annotation files.
+* EggNOG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
@@ -78,7 +78,7 @@ python TMarSel/TMarSel.py \
     --output_dir    out/wol2 
 ```
 
-* KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`.
+* KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
@@ -88,7 +88,7 @@ python TMarSel/TMarSel.py \
 
 ### 2\. Annotations of 793 metagenome-assembled genomes (MAGs) from the Earth Microbiome Project
 
-* EggNOG annotations contained multiple (not compressed) files with three columns `orf|bit_score|gene_family`.
+* EggNOG annotations contained multiple (not compressed) files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
@@ -106,7 +106,7 @@ python TMarSel/TMarSel.py \
     --raw_annotations
 ```
 
-* KEGG annotations contained in multiple files with three columns `orf|bit_score|gene_family`.
+* KEGG annotations contained in multiple files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
