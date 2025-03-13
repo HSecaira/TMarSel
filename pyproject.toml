@@ -10,7 +10,6 @@ dependencies = [
     "pandas",
     "scipy",
     "tqdm",
-    "argparse",
 ]
 requires-python = ">=3.6"
 authors = [
