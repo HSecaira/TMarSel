@@ -28,8 +28,6 @@ def load_genome_annotations_single_file(input_data, database, raw_annotations):
             Input file
         database : str (optional)
             Either 'eggnog' or 'kegg' to specify the format
-        compressed : bool (optional)
-            Whether the file is compressed (default is True)
         raw_annotations : bool (optional)
             Whether the file contains raw annotations (default is False)
     
@@ -94,8 +92,6 @@ def load_genome_annotations_multiple_files(input_data, database, raw_annotations
             Directory containing the input files.
         database : str (optional)
             Either 'eggnog' or 'kegg' to specify the format.
-        compressed : bool (optional)
-            Whether the file is compressed (default is True)
         raw_annotations : bool (optional)
             Whether the file contains raw annotations (default is False)
     

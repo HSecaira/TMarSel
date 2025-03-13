@@ -14,7 +14,7 @@
 ## Flags
 
 * `-h` Display help message.
-* `-i` [**required**] Either a single annotation of ORFs into gene families file OR a direcotry containing multiple annotation files. File(s) contains three columns: `orf|bit_score|gene_family`
+* `-i` [**required**] Either a single annotation of ORFs into gene families file OR a direcotry containing multiple annotation files. File(s) contains three columns: `orf|bit_score|gene_family`.
 * `-o` [**required**] Output directory to save the ORFs and statistics of each marker.
 * `-raw` [**required**] IF input file(s) contain raw annotations from functional databases, which contains multiple columns depending on the database.
 * `-db` [**required**] IF input contains the raw annotations set in `-raw`. Name of the database used for genome annotation (`eggnog` or `kegg`).
@@ -39,8 +39,8 @@
 
 | genome | number_of_different_markers | total_number of markers | details |
 | --- | --- | --- | --- |
-| G000006605 | 10 | 10 | K01889:1;K01866:1;K01872:1; ... |
-| G000006725 | 9 | 10 | K02358:2;K01872:1;K01866:1; ... |
+| G000006605 | 10 | 10 | K01889:1;K01866:1; ... |
+| G000006725 | 9 | 10 | K02358:2;K01872:1; ... |
 | ... | ... | ... | ... |
 
 * Number of genomes per marker (see below). We provide the number of genomes containing the marker. The `details` column contains the genome name and the number of ORFs of the marker.
@@ -52,14 +52,12 @@
 
 ## Installation
 
-* **Anaconda**
 * **pip**
-* **GitHub**
 
 ## Basic usage
 
 ```bash
- python TMarSel.py -i input_file -o output_dir
+ python TMarSel.py -i input_file_or_dir -o output_dir
 ```
 
 After installation, type `python TMarSel.py -h` to learn all the options.
@@ -74,54 +72,54 @@ We provide multiple examples to showcase the usage of **TMarSel**. Data can be d
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file    data/wol2/emapper_wol2_example.tsv \
-    --output_dir    out/wol2 
+    -i    data/wol2/emapper_wol2_example.tsv \
+    -o    out/wol2 
 ```
 
 * KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file    data/wol2/kofamscan_wol2_example.tsv \
-    --output_dir    out/wol2 
+    -i    data/wol2/kofamscan_wol2_example.tsv \
+    -o    out/wol2 
 ```
 
 ### 2\. Annotations of 793 metagenome-assembled genomes (MAGs) from the Earth Microbiome Project
 
-* EggNOG annotations contained multiple (not compressed) files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
+* EggNOG annotations contained multiple files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file_or_dir data/emp/eggnog_format \
-    --output_dir        out/emp
+    -i data/emp/eggnog_format \
+    -o        out/emp
 ```
 
-* EggNOG annotations contained in multiple (not compressed) files with raw annotations.
+* EggNOG annotations contained in multiple files with raw annotations.
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file_or_dir data/emp/eggnog \
-    --output_dir        out/emp \
-    --database          eggnog \
-    --raw_annotations
+    -i data/emp/eggnog \
+    -o        out/emp \
+    -db          eggnog \
+    -raw
 ```
 
 * KEGG annotations contained in multiple files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file_or_dir data/emp/kegg_format \
-    --output_dir        out/emp
+    -i data/emp/kegg_format \
+    -o        out/emp
 ```
 
 * KEGG annotations contained in multiple files with raw annotations.
 
 ```bash
 python TMarSel/TMarSel.py \
-    --input_file_or_dir data/emp/kegg \
-    --output_dir        out/emp \
-    --database          kegg \
-    --raw_annotations
+    -i data/emp/kegg \
+    -o        out/emp \
+    -db          kegg \
+    -raw
 ```
 
 ## Citation
