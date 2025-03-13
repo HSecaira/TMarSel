@@ -41,5 +41,8 @@ Documentation = "https://github.com/HSecaira/TMarSel/blob/main/README.md"
 Repository = "https://github.com/HSecaira/TMarSel.git"
 Issues = "https://github.com/HSecaira/TMarSel/issues"
 
+[project.scripts]
+tmarsel = "TMarSel.TMarSel:main"
+
 [tool.hatch.version]
 path = 'TMarSel/__init__.py'

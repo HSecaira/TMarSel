@@ -54,10 +54,14 @@
 
 * **pip**
 
+```bash
+pip install TMarSel
+```
+
 ## Basic usage
 
 ```bash
- python TMarSel.py -i input_file_or_dir -o output_dir
+ tmarsel -i input_file_or_dir -o output_dir
 ```
 
 After installation, type `python TMarSel.py -h` to learn all the options.
@@ -71,7 +75,7 @@ We provide multiple examples to showcase the usage of **TMarSel**. Data can be d
 * EggNOG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i    data/wol2/emapper_wol2_example.tsv \
     -o    out/wol2 
 ```
@@ -79,7 +83,7 @@ python TMarSel/TMarSel.py \
 * KEGG annotations contained in a single file with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i    data/wol2/kofamscan_wol2_example.tsv \
     -o    out/wol2 
 ```
@@ -89,7 +93,7 @@ python TMarSel/TMarSel.py \
 * EggNOG annotations contained multiple files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i data/emp/eggnog_format \
     -o        out/emp
 ```
@@ -97,7 +101,7 @@ python TMarSel/TMarSel.py \
 * EggNOG annotations contained in multiple files with raw annotations.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i data/emp/eggnog \
     -o        out/emp \
     -db          eggnog \
@@ -107,7 +111,7 @@ python TMarSel/TMarSel.py \
 * KEGG annotations contained in multiple files with three columns `orf|bit_score|gene_family`. **See** [annotation](doc/genome_annotation.md) for formating the raw annotation files.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i data/emp/kegg_format \
     -o        out/emp
 ```
@@ -115,7 +119,7 @@ python TMarSel/TMarSel.py \
 * KEGG annotations contained in multiple files with raw annotations.
 
 ```bash
-python TMarSel/TMarSel.py \
+tmarsel \
     -i data/emp/kegg \
     -o        out/emp \
     -db          kegg \
