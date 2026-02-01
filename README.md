@@ -130,4 +130,4 @@ tmarsel \
 
 The current version of **TMarSel** is described in 
 
-* x.x
+* Secaira-Morocho, H., Jiang, X. & Zhu, Q. Augmenting microbial phylogenomic signal with tailored marker gene sets. *Nat Commun* 16, 9943 (2025). <https://doi.org/10.1038/s41467-025-64881-2>
